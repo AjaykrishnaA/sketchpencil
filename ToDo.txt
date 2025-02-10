@@ -1,0 +1,5 @@
+password encryption
+authenticated routes
+db queuing
+react hook forms
+study generics!
