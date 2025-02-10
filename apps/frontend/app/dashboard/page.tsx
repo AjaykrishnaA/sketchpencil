@@ -14,11 +14,11 @@ interface Room {
 export default function Dashboard() {
     const router = useRouter();
     const [newRoomName, setNewRoomName] = useState('');
-    const [recentRooms, setRecentRooms] = useState<Room[]>([
-        { id: '1', name: 'Project Wireframes', lastAccessed: '2024-02-10T10:30:00' },
-        { id: '2', name: 'UI Design Review', lastAccessed: '2024-02-09T15:45:00' },
-        { id: '3', name: 'Team Brainstorm', lastAccessed: '2024-02-08T09:15:00' }
-    ]);
+    // const [recentRooms, setRecentRooms] = useState<Room[]>([
+    //     { id: '1', name: 'Project Wireframes', lastAccessed: '2024-02-10T10:30:00' },
+    //     { id: '2', name: 'UI Design Review', lastAccessed: '2024-02-09T15:45:00' },
+    //     { id: '3', name: 'Team Brainstorm', lastAccessed: '2024-02-08T09:15:00' }
+    // ]);
 
     const handleCreateRoom = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,7 +94,7 @@ export default function Dashboard() {
                             <Clock className="h-5 w-5 text-blue-600 mr-2" />
                             Recent Rooms
                         </h2>
-                        <div className="space-y-4">
+                        {/* <div className="space-y-4">
                             {recentRooms.map((room) => (
                                 <div
                                     key={room.id}
@@ -123,7 +123,7 @@ export default function Dashboard() {
                                     No recent rooms found
                                 </p>
                             )}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </main>
