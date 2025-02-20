@@ -5,11 +5,11 @@ import { Plus, Clock, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import { HTTP_BACKEND } from '@/config';
 
-interface Room {
-    id: string;
-    name: string;
-    lastAccessed: string;
-}
+// interface Room {
+//     id: string;
+//     name: string;
+//     lastAccessed: string;
+// }
 
 export default function Dashboard() {
     const router = useRouter();
@@ -41,10 +41,10 @@ export default function Dashboard() {
         }
     };
 
-    const handleJoinRoom = (roomId: string) => {
-        // Handle room joining logic here
-        console.log('Joining room:', roomId);
-    };
+    // const handleJoinRoom = (roomId: string) => {
+    //     // Handle room joining logic here
+    //     console.log('Joining room:', roomId);
+    // };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">

@@ -19,7 +19,6 @@ async function getRoomId(roomSlug: string) {
         const error = err as AxiosError<ErrorResponse>;;
         if (error.response) {
             // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             console.error("Server Error:", error.response.data.error);
             return {
                 error: error.response.data.error
@@ -40,16 +39,13 @@ async function getRoomId(roomSlug: string) {
     }
 }
 
-export default async function RoomCanvas({params}: {
-    params: {
-        roomSlug: string
-    }
-}) {
-    const roomSlug = (await params).roomSlug;
-    
+
+export default async function RoomCanvas ({params} : { params: Promise<{ roomSlug: string }> }) { // Inline type definition
+    const { roomSlug } = await params;
+
     const roomId = await getRoomId(roomSlug);
     if (typeof roomId !== "string"){
-        return roomId.error
+        return <div>Error: {roomId.error}</div>
     }
     return <CanvasPage roomId={roomId} />
 }
