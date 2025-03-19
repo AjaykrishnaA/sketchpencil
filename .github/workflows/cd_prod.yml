@@ -13,4 +13,4 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ssh_key
         chmod 700 ~/.ssh/ssh_key
     - name: SSH into vm and restart servers
-      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_key ${{ secrets.VM_USER }}@${{ secrets.VM_IP }} "cd sketchpencil && git pull origin main && export $PATH=/home/ajaykrishna/.nvm/versions/node/v22.14.0/bin && pnpm install && pnpm run build && pm2 restart frontend && pm2 restart http-backend && pm2 restart ws-backend"
+      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_key ${{ secrets.VM_USER }}@${{ secrets.VM_IP }} -t "cd sketchpencil && git pull origin main && export $PATH=/home/ajaykrishna/.nvm/versions/node/v22.14.0/bin && pnpm install && pnpm run build && pm2 restart frontend && pm2 restart http-backend && pm2 restart ws-backend"
