@@ -1,2 +1,2 @@
-export const HTTP_BACKEND = "http://localhost:3001";
-export const WS_BACKEND = "ws://localhost:8081"
+export const HTTP_BACKEND = "http://be.sketchpencil.ajaylabs.space";
+export const WS_BACKEND = "ws://ws.sketchpencil.ajaylabs.space"
