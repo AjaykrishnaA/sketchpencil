@@ -15,6 +15,7 @@ jobs:
     - name: SSH into vm
       run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_key ${{ secrets.VM_USER }}@${{ secrets.VM_IP }}
     - run: ls
+    - run: pwd
     - name: Pull latest code
       run: ls && cd sketchpencil && git pull origin main
     - name: Install dependencies
