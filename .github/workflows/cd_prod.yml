@@ -17,7 +17,7 @@ jobs:
     - run: ls
     - run: pwd
     - name: Pull latest code
-      run: ls && cd sketchpencil && git pull origin main
+      run: git pull origin main
     - name: Install dependencies
       run: pnpm install
     - name: Build
