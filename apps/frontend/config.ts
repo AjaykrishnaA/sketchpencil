@@ -1,2 +1,2 @@
-export const HTTP_BACKEND = "https://be.sketchpencil.ajaylabs.space";
-export const WS_BACKEND = "wss://ws.sketchpencil.ajaylabs.space"
+export const HTTP_BACKEND = process.env.NEXT_PUBLIC_HTTP_BACKEND || "https://be.sketchpencil.ajaylabs.space";
+export const WS_BACKEND = process.env.NEXT_PUBLIC_WS_BACKEND || "wss://ws.sketchpencil.ajaylabs.space"

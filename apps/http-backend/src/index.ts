@@ -8,7 +8,12 @@ import { auth } from "./middleware";
 
 const app = express();
 
-app.use(cors({origin: "https://sketchpencil.ajaylabs.space"}))
+app.use(cors({
+    origin: [
+        "https://sketchpencil.ajaylabs.space",
+        "http://localhost:3000"
+        ]
+}));
 app.use(express.json());
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World!");
@@ -146,7 +151,7 @@ app.get("/room/:roomSlug", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
-
-app.listen(3001, () => {
-    console.log("https-backend is running on port 3001");
+const port = 8080;
+app.listen(port, () => {
+    console.log(`https-backend is running on port ${port}`);
 });
