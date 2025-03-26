@@ -8,7 +8,13 @@ import { auth } from "./middleware";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        "https://sketchpencil.ajaylabs.space",
+        "http://localhost:3000"
+        ],
+    credentials: true
+}));
 app.use(express.json());
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World!");
