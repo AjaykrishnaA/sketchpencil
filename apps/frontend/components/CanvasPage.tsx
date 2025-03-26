@@ -2,6 +2,7 @@
 import { WS_BACKEND } from "@/config"
 import { useEffect, useState } from "react"
 import Canvas from "./Canvas";
+import AuthGuard from '@/components/AuthGuard';
 
 export default function CanvasPage({roomId}: {
     roomId: string
@@ -32,5 +33,9 @@ export default function CanvasPage({roomId}: {
     if(!socket) {
         return "WebSocket Loading...";
     }
-    return <Canvas roomId={roomId} socket={socket} />
+    return (
+        <AuthGuard>
+            <Canvas roomId={roomId} socket={socket} />
+        </AuthGuard>
+    )
 }

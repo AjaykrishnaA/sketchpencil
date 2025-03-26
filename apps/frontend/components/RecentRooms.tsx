@@ -73,8 +73,30 @@ export default function RecentRooms() {
         fetchRecentRooms();
     }, [router]);
 
+    const updateRoomAccess = async (roomSlug: string) => {
+        try {
+            await axios.post(`${HTTP_BACKEND}/roomAccess/update`, {
+                roomSlug: roomSlug
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
+                }
+            });
+        } catch (error) {
+            console.error('Failed to update room access:', error);
+        }
+    };
+
     const handleRoomClick = async (roomSlug: string) => {
-        router.push(`/canvas/${roomSlug}`);
+        try {
+            // Update room access before navigation
+            await updateRoomAccess(roomSlug);
+            router.push(`/canvas/${roomSlug}`);
+        } catch (error) {
+            console.error('Failed to handle room click:', error);
+            // Still navigate to the room even if access update fails
+            router.push(`/canvas/${roomSlug}`);
+        }
     };
 
     const RoomGroup = ({ title, rooms }: { title: string; rooms: RoomAccess[] }) => (
