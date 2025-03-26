@@ -11,7 +11,7 @@ export default function Dashboard() {
     const [joinRoomSlug, setJoinRoomSlug] = useState('');
 
     useEffect(() => {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken');    
         if (!token) {
             router.push('/login');
         }

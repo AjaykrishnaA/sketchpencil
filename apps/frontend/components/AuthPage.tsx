@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { User, Mail, Lock } from 'lucide-react';
 import axios from 'axios';
 import { HTTP_BACKEND } from '@/config';
+import { createUserSchema, signinSchema } from "@repo/common/types"; 
+import { z } from 'zod';
 
 export default function AuthPage({ isSignin }: {
     isSignin: boolean
@@ -12,13 +14,26 @@ export default function AuthPage({ isSignin }: {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [errors, setErrors] = useState<{
+        email?: string[];
+        password?: string[];
+        name?: string[];
+        form?: string[];
+    }>({});
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrors({});
         
         try {
-            const url = isSignin ? '/signin' : '/signup';
+            // Validate form data using Zod schemas
+            const schema = isSignin ? signinSchema : createUserSchema;
             const payload = isSignin ? { email, password } : { email, password, name };
+            
+            // Parse with Zod
+            schema.parse(payload);
+            
+            const url = isSignin ? '/signin' : '/signup';
 
             const res = await axios.post(`${HTTP_BACKEND}${url}`, payload);
 
@@ -34,8 +49,24 @@ export default function AuthPage({ isSignin }: {
             router.push('/dashboard');
             
         } catch (error) {
-            console.error('Login failed:', error);
-            // Handle errors (e.g., show error message)
+            if (error instanceof z.ZodError) {
+                // Format and set validation errors
+                const formattedErrors: Record<string, string[]> = {};
+                
+                error.errors.forEach((err: z.ZodIssue) => {
+                    const field = err.path[0] as string;
+                    if (!formattedErrors[field]) {
+                        formattedErrors[field] = [];
+                    }
+                    formattedErrors[field].push(err.message);
+                });
+                
+                setErrors(formattedErrors);
+            } else {
+                // Handle API errors
+                console.error('Login failed:', error);
+                setErrors({ form: ['Authentication failed. Please try again.'] });
+            }
         }
     };
 
@@ -53,6 +84,14 @@ export default function AuthPage({ isSignin }: {
                     </p>
                 </div>
 
+                {errors.form && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {errors.form.map((error, i) => (
+                            <p key={i}>{error}</p>
+                        ))}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {!isSignin && (
                         <div>
@@ -67,11 +106,18 @@ export default function AuthPage({ isSignin }: {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className={`block w-full pl-10 pr-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                     placeholder="John Doe"
                                     required
                                 />
                             </div>
+                            {errors.name && (
+                                <div className="mt-1 text-sm text-red-600">
+                                    {errors.name.map((error, i) => (
+                                        <p key={i}>{error}</p>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -87,11 +133,18 @@ export default function AuthPage({ isSignin }: {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="you@example.com"
+                                className={`block w-full pl-10 pr-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                placeholder="johndoe@example.com"
                                 required
                             />
                         </div>
+                        {errors.email && (
+                            <div className="mt-1 text-sm text-red-600">
+                                {errors.email.map((error, i) => (
+                                    <p key={i}>{error}</p>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -106,11 +159,18 @@ export default function AuthPage({ isSignin }: {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className={`block w-full pl-10 pr-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                 placeholder="********"
                                 required
                             />
                         </div>
+                        {errors.password && (
+                            <div className="mt-1 text-sm text-red-600">
+                                {errors.password.map((error, i) => (
+                                    <p key={i}>{error}</p>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <button
