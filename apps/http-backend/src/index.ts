@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import cors from "cors"
 import jwt from "jsonwebtoken";
 import { createUserSchema, signinSchema, createRoomSchema } from "@repo/common/types"; 
 import { JWT_SECRET } from "@repo/backend-common/config";
@@ -8,7 +7,6 @@ import { auth } from "./middleware";
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World!");
