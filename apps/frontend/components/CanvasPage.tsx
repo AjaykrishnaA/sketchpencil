@@ -3,13 +3,21 @@ import { WS_BACKEND } from "@/config"
 import { useEffect, useState } from "react"
 import Canvas from "./Canvas";
 import AuthGuard from '@/components/AuthGuard';
+import { useRouter } from "next/router";
 
 export default function CanvasPage({roomId}: {
     roomId: string
 }) {
     const [socket, setSocket] = useState<WebSocket | null>(null);
+    const router = useRouter();
+
     useEffect(()=> {
-        const ws = new WebSocket(`${WS_BACKEND}/?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWEzMzQ5Yi0zZTkzLTRhNGQtOTFmNC02YTAzZjZjYmM2OTgiLCJpYXQiOjE3Mzg2NTYxMjV9.bCYBRURWSRs9-EcOxd2Odpmx_B7X9G8dx1L4A_XIXyY`) //token
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+        const ws = new WebSocket(`${WS_BACKEND}/?token=${token}`);
         ws.onopen = () => {
             setSocket(ws);
             ws.send(JSON.stringify({
@@ -29,7 +37,7 @@ export default function CanvasPage({roomId}: {
             ws.close()
         }
 
-    },[roomId])
+    },[roomId, router])
     if(!socket) {
         return "WebSocket Loading...";
     }
