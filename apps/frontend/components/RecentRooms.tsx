@@ -1,10 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { Clock, Plus, ArrowRight } from 'lucide-react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { HTTP_BACKEND } from '@/config';
 import AuthGuard from '@/components/AuthGuard';
+import { updateRoomAccess, api } from '@/lib/roomUtils';
 
 interface RoomAccess {
     roomId: string;
@@ -39,11 +38,7 @@ export default function RecentRooms() {
         const fetchRecentRooms = async () => {
             setIsLoading(true);
             try {
-                const response = await axios.get(`${HTTP_BACKEND}/roomAccess/recentrooms`, {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`
-                    }
-                });
+                const response = await api.get('/roomAccess/recentrooms');
                 
                 const rooms: RoomAccess[] = response.data.recentRooms;
                 const now = new Date();
@@ -72,20 +67,6 @@ export default function RecentRooms() {
 
         fetchRecentRooms();
     }, [router]);
-
-    const updateRoomAccess = async (roomSlug: string) => {
-        try {
-            await axios.post(`${HTTP_BACKEND}/roomAccess/update`, {
-                roomSlug: roomSlug
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
-                }
-            });
-        } catch (error) {
-            console.error('Failed to update room access:', error);
-        }
-    };
 
     const handleRoomClick = async (roomSlug: string) => {
         try {

@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, ArrowRight } from 'lucide-react';
-import axios from 'axios';
-import { HTTP_BACKEND } from '@/config';
 import RecentRooms from '@/components/RecentRooms';
+import { updateRoomAccess, api } from '@/lib/roomUtils';
 
 export default function Dashboard() {
     const router = useRouter();
@@ -18,30 +17,12 @@ export default function Dashboard() {
         }
     }, [router]);
 
-    const updateRoomAccess = async (roomSlug: string) => {
-        try {
-            await axios.post(`${HTTP_BACKEND}/roomAccess/update`, {
-                roomSlug: roomSlug
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
-                }
-            });
-        } catch (error) {
-            console.error('Failed to update room access:', error);
-        }
-    };
-
     const handleCreateRoom = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             console.log('Creating room:', newRoomName);
-            const res = await axios.post(`${HTTP_BACKEND}/room/create-room`, {
+            const res = await api.post('/room/create-room', {
                 "name": newRoomName
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
-                }
             });
             console.log(res.data);
             if (res.data.roomId) {
