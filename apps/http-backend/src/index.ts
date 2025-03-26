@@ -10,8 +10,7 @@ const app = express();
 
 app.use(cors({
     origin: [
-        "https://sketchpencil.ajaylabs.space",
-        "http://localhost:3000"
+        "https://sketchpencil.ajaylabs.space"
         ]
 }));
 app.use(express.json());
