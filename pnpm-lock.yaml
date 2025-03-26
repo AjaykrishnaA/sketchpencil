@@ -97,6 +97,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.7
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
 
   apps/ws-backend:
     dependencies:
@@ -125,6 +128,9 @@ importers:
       '@types/ws':
         specifier: ^8.5.13
         version: 8.5.13
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
 
   packages/backend-common:
     devDependencies:
@@ -2741,6 +2747,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.8.2:
+    resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   uglify-js@3.19.3:
     resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
@@ -4006,7 +4017,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@1.21.7))(typescript@5.5.4))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0)(eslint@9.15.0(jiti@1.21.7)):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@1.21.7))(typescript@5.5.4))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0)(eslint@9.15.0(jiti@1.21.7)))(eslint@9.15.0(jiti@1.21.7)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -4028,7 +4039,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.15.0(jiti@1.21.7)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@1.21.7))(typescript@5.5.4))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0)(eslint@9.15.0(jiti@1.21.7))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@1.21.7))(typescript@5.5.4))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0)(eslint@9.15.0(jiti@1.21.7)))(eslint@9.15.0(jiti@1.21.7))
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -5741,6 +5752,8 @@ snapshots:
       - supports-color
 
   typescript@5.5.4: {}
+
+  typescript@5.8.2: {}
 
   uglify-js@3.19.3:
     optional: true

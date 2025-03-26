@@ -1,5 +1,7 @@
-password encryption
+error propogation to frontend
+enviromentalize jwt_secret
 authenticated routes
+password encryption
 db queuing
 react hook forms
 study generics!

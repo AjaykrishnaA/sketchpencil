@@ -15,6 +15,7 @@ model User {
   avatar      String?
   chats       Chat[]
   rooms       Room[]
+  roomAccess  UserRoomAccess[]
 }
 
 model Room {
@@ -24,6 +25,7 @@ model Room {
   adminId     String
   admin       User        @relation(fields: [adminId], references: [id])
   chats       Chat[]
+  userAccess  UserRoomAccess[]
 }
 
 model Chat {
@@ -33,4 +35,15 @@ model Chat {
   roomId      String
   author      User        @relation(fields: [authorId], references: [id])
   room        Room        @relation(fields: [roomId], references: [roomId])
+}
+
+model UserRoomAccess {
+  id           String    @id @default(uuid())
+  userId       String
+  roomId       String
+  lastAccessed DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id])
+  room         Room      @relation(fields: [roomId], references: [roomId])
+
+  @@unique([userId, roomId])
 }
