@@ -3,7 +3,7 @@ import { WS_BACKEND } from "@/config"
 import { useEffect, useState } from "react"
 import Canvas from "./Canvas";
 import AuthGuard from '@/components/AuthGuard';
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function CanvasPage({roomId}: {
     roomId: string
