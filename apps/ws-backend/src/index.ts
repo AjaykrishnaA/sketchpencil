@@ -1,10 +1,7 @@
 import {WebSocket, WebSocketServer} from "ws";
-import { IncomingMessage } from "http";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { prismaClient } from "@repo/db/client";
-import { parse } from "path";
-import { stringify } from "querystring";
 
 interface User {
   userId: string,
