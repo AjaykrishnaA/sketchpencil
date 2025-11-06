@@ -1,3 +1,5 @@
+authguard doesn't seem working
+replace router.push with router.replace during auth redirect
 enviromentalize jwt_secret
 authenticated routes
 password encryption
