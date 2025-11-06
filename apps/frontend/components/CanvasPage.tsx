@@ -14,7 +14,7 @@ export default function CanvasPage({roomId}: {
     useEffect(()=> {
         const token = localStorage.getItem('authToken');
         if (!token) {
-            router.push('/login');
+            router.replace('/signin');
             return;
         }
         const ws = new WebSocket(`${WS_BACKEND}/?token=${token}`);
