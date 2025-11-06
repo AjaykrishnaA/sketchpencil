@@ -14,6 +14,7 @@ export default function AuthPage({ isSignin }: {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<{
         email?: string[];
         password?: string[];
@@ -23,7 +24,9 @@ export default function AuthPage({ isSignin }: {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isSubmitting) return; // prevent double submit
         setErrors({});
+        setIsSubmitting(true);
         
         try {
             // Validate form data using Zod schemas
@@ -67,6 +70,8 @@ export default function AuthPage({ isSignin }: {
                 console.error('Login failed:', error);
                 setErrors({ form: ['Authentication failed. Please try again.'] });
             }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -102,13 +107,14 @@ export default function AuthPage({ isSignin }: {
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <User className="h-5 w-5 text-gray-400" />
                                 </div>
-                                <input
+                            <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className={`block w-full pl-10 pr-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                     placeholder="John Doe"
-                                    required
+                                required
+                                disabled={isSubmitting}
                                 />
                             </div>
                             {errors.name && (
@@ -136,6 +142,7 @@ export default function AuthPage({ isSignin }: {
                                 className={`block w-full pl-10 pr-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                 placeholder="johndoe@example.com"
                                 required
+                                disabled={isSubmitting}
                             />
                         </div>
                         {errors.email && (
@@ -162,6 +169,7 @@ export default function AuthPage({ isSignin }: {
                                 className={`block w-full pl-10 pr-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                 placeholder="********"
                                 required
+                                disabled={isSubmitting}
                             />
                         </div>
                         {errors.password && (
@@ -175,9 +183,17 @@ export default function AuthPage({ isSignin }: {
 
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                        disabled={isSubmitting}
                     >
-                        {isSignin ? 'Sign In' : 'Sign Up'}
+                        {isSubmitting ? (
+                            <span className="inline-flex items-center justify-center gap-2">
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                {isSignin ? 'Signing in…' : 'Creating account…'}
+                            </span>
+                        ) : (
+                            isSignin ? 'Sign In' : 'Sign Up'
+                        )}
                     </button>
                     {isSignin && (
                         <p className="mt-4 text-center text-sm text-gray-600">
