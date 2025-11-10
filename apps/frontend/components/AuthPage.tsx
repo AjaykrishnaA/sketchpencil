@@ -1,11 +1,18 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Lock } from 'lucide-react';
 import axios from 'axios';
 import { HTTP_BACKEND } from '@/config';
 import { createUserSchema, signinSchema } from "@repo/common/types"; 
 import { z } from 'zod';
+
+type FormErrorState = {
+    email?: string[];
+    password?: string[];
+    name?: string[];
+    form?: string[];
+};
 
 export default function AuthPage({ isSignin }: {
     isSignin: boolean
@@ -15,29 +22,151 @@ export default function AuthPage({ isSignin }: {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState<{
-        email?: string[];
-        password?: string[];
-        name?: string[];
-        form?: string[];
+    const [errors, setErrors] = useState<FormErrorState>({});
+    const [touched, setTouched] = useState<{
+        email?: boolean;
+        password?: boolean;
+        name?: boolean;
     }>({});
+    const emailValidationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const updateFieldErrors = (field: 'email' | 'password' | 'name', messages: string[]) => {
+        setErrors((prev) => {
+            const next = { ...prev };
+            delete next.form;
+
+            if (messages.length === 0) {
+                delete next[field];
+            } else {
+                next[field] = messages;
+            }
+
+            return next;
+        });
+    };
+
+    const validateField = (field: 'email' | 'password' | 'name', value: string) => {
+        let schema: z.ZodTypeAny;
+
+        if (field === 'name') {
+            schema = createUserSchema.shape.name;
+        } else if (field === 'email') {
+            schema = signinSchema.shape.email;
+        } else {
+            schema = signinSchema.shape.password;
+        }
+
+        const result = schema.safeParse(value);
+        return result.success ? [] : result.error.issues.map((issue) => issue.message);
+    };
+
+    const getFieldValue = (field: 'email' | 'password' | 'name') => {
+        if (field === 'email') return email;
+        if (field === 'password') return password;
+        return name;
+    };
+
+    const handleFieldBlur = (field: 'email' | 'password' | 'name') => () => {
+        setTouched((prev) => ({ ...prev, [field]: true }));
+        const messages = validateField(field, getFieldValue(field));
+        updateFieldErrors(field, messages);
+    };
+
+    const handlePasswordChange = (value: string) => {
+        setPassword(value);
+        if (touched.password) {
+            const messages = validateField('password', value);
+            updateFieldErrors('password', messages);
+        }
+    };
+
+    const handleNameChange = (value: string) => {
+        setName(value);
+        if (touched.name) {
+            const messages = validateField('name', value);
+            updateFieldErrors('name', messages);
+        }
+    };
+
+    const handleEmailChange = (value: string) => {
+        setEmail(value);
+
+        if (!touched.email) {
+            return;
+        }
+
+        if (emailValidationTimeout.current) {
+            clearTimeout(emailValidationTimeout.current);
+        }
+
+        emailValidationTimeout.current = setTimeout(() => {
+            const messages = validateField('email', value);
+            updateFieldErrors('email', messages);
+        }, 350);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (emailValidationTimeout.current) {
+                clearTimeout(emailValidationTimeout.current);
+            }
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (isSubmitting) return; // prevent double submit
         setErrors({});
         setIsSubmitting(true);
-        
-        try {
-            // Validate form data using Zod schemas
-            const schema = isSignin ? signinSchema : createUserSchema;
-            const payload = isSignin ? { email, password } : { email, password, name };
-            
-            // Parse with Zod
-            schema.parse(payload);
-            
-            const url = isSignin ? '/signin' : '/signup';
 
+        // Validate form data using Zod schemas
+        const schema = isSignin ? signinSchema : createUserSchema;
+        const payload = isSignin ? { email, password } : { email, password, name };
+
+        const validation = schema.safeParse(payload);
+
+        if (!validation.success) {
+            const { fieldErrors, formErrors } = validation.error.flatten();
+            const authFieldErrors = fieldErrors as {
+                email?: string[];
+                password?: string[];
+                name?: string[];
+            };
+
+            setTouched((prev) => ({
+                ...prev,
+                email: true,
+                password: true,
+                ...(isSignin ? {} : { name: true }),
+            }));
+
+            const nextErrors: FormErrorState = {};
+
+            if (authFieldErrors.email?.length) {
+                nextErrors.email = authFieldErrors.email;
+            }
+
+            if (authFieldErrors.password?.length) {
+                nextErrors.password = authFieldErrors.password;
+            }
+
+            if (!isSignin && authFieldErrors.name?.length) {
+                nextErrors.name = authFieldErrors.name;
+            }
+
+            if (formErrors.length) {
+                nextErrors.form = formErrors;
+            }
+
+            setErrors(nextErrors);
+
+            setIsSubmitting(false);
+            return;
+        }
+
+        const url = isSignin ? '/signin' : '/signup';
+
+        try {
             const res = await axios.post(`${HTTP_BACKEND}${url}`, payload);
 
             // Handle successful login
@@ -52,24 +181,8 @@ export default function AuthPage({ isSignin }: {
             router.push('/dashboard');
             
         } catch (error) {
-            if (error instanceof z.ZodError) {
-                // Format and set validation errors
-                const formattedErrors: Record<string, string[]> = {};
-                
-                error.errors.forEach((err: z.ZodIssue) => {
-                    const field = err.path[0] as string;
-                    if (!formattedErrors[field]) {
-                        formattedErrors[field] = [];
-                    }
-                    formattedErrors[field].push(err.message);
-                });
-                
-                setErrors(formattedErrors);
-            } else {
-                // Handle API errors
-                console.error('Login failed:', error);
-                setErrors({ form: ['Authentication failed. Please try again.'] });
-            }
+            console.error('Login failed:', error);
+            setErrors({ form: ['Authentication failed. Please try again.'] });
         } finally {
             setIsSubmitting(false);
         }
@@ -108,14 +221,15 @@ export default function AuthPage({ isSignin }: {
                                     <User className="h-5 w-5 text-gray-400" />
                                 </div>
                             <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className={`block w-full pl-10 pr-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                                    placeholder="John Doe"
+                                type="text"
+                                value={name}
+                                onChange={(e) => handleNameChange(e.target.value)}
+                                onBlur={handleFieldBlur('name')}
+                                className={`block w-full pl-10 pr-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                placeholder="John Doe"
                                 required
                                 disabled={isSubmitting}
-                                />
+                            />
                             </div>
                             {errors.name && (
                                 <div className="mt-1 text-sm text-red-600">
@@ -138,7 +252,8 @@ export default function AuthPage({ isSignin }: {
                             <input
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => handleEmailChange(e.target.value)}
+                                onBlur={handleFieldBlur('email')}
                                 className={`block w-full pl-10 pr-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                 placeholder="johndoe@example.com"
                                 required
@@ -165,7 +280,8 @@ export default function AuthPage({ isSignin }: {
                             <input
                                 type="password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => handlePasswordChange(e.target.value)}
+                                onBlur={handleFieldBlur('password')}
                                 className={`block w-full pl-10 pr-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                 placeholder="********"
                                 required
