@@ -1,21 +1,63 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, ArrowRight } from 'lucide-react';
+import { Plus, ArrowRight, User, LogOut, Settings } from 'lucide-react';
 import RecentRooms from '@/components/RecentRooms';
 import { updateRoomAccess, api } from '@/lib/roomUtils';
+
+interface UserProfile {
+    name: string;
+    email: string;
+    avatar: string | null;
+}
 
 export default function Dashboard() {
     const router = useRouter();
     const [newRoomName, setNewRoomName] = useState('');
     const [joinRoomSlug, setJoinRoomSlug] = useState('');
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');    
         if (!token) {
             router.replace('/signin');
+        } else {
+            fetchUserProfile();
         }
     }, [router]);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        if (isDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
+
+    const fetchUserProfile = async () => {
+        try {
+            const res = await api.get('/user/profile');
+            setUserProfile(res.data);
+        } catch (error) {
+            console.error('Failed to fetch user profile:', error);
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        router.push('/signin');
+    };
 
     const handleCreateRoom = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -55,8 +97,64 @@ export default function Dashboard() {
         <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
             {/* Header */}
             <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-900">Welcome to Sketchpencil</h1>
+                    
+                    {/* Avatar Button */}
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center overflow-hidden"
+                            aria-label="User menu"
+                        >
+                            {userProfile?.avatar ? (
+                                <img
+                                    src={userProfile.avatar}
+                                    alt={userProfile.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <User className="h-6 w-6 text-gray-600" />
+                            )}
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isDropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                {/* User Info */}
+                                <div className="px-4 py-3 border-b border-gray-200">
+                                    <p className="text-sm font-semibold text-gray-900">
+                                        {userProfile?.name || 'User'}
+                                    </p>
+                                    <p className="text-xs text-gray-500 truncate">
+                                        {userProfile?.email || ''}
+                                    </p>
+                                </div>
+
+                                {/* Menu Items */}
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            // Placeholder for settings
+                                            console.log('Settings clicked');
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center transition-colors duration-150"
+                                    >
+                                        <Settings className="h-4 w-4 mr-3 text-gray-500" />
+                                        Settings
+                                    </button>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors duration-150"
+                                    >
+                                        <LogOut className="h-4 w-4 mr-3" />
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 

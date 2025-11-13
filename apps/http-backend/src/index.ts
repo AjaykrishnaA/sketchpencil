@@ -87,6 +87,45 @@ app.post("/signin", async (req: Request, res: Response) => {
 });
 
 // @ts-ignore
+app.get("/user/profile", auth, async (req, res) => {
+    const userId = req.userId;
+    if (!userId) {
+        return res.status(401).json({
+            "message": "User ID not found"
+        });
+    }
+    try {
+        const user = await prismaClient.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                name: true,
+                email: true,
+                avatar: true
+            }
+        });
+        
+        if (!user) {
+            return res.status(404).json({
+                "message": "User not found"
+            });
+        }
+        
+        res.json({
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar
+        });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({
+            "message": "Error fetching user profile"
+        });
+    }
+});
+
+// @ts-ignore
 app.get("/roomAccess/recentrooms", auth, async (req, res) => {
     const userId = req.userId;
     try {
