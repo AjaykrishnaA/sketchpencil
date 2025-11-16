@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Remove default browser outline and ensure custom focus rings work properly */
+button:focus,
+a:focus {
+  outline: none;
+}

@@ -13,13 +13,13 @@ export default function Home() {
             <span className="text-2xl font-bold text-gray-900">Sketchpencil</span>
           </div>
           <div className="space-x-4">
-            <Link href="/signin">
-              <button className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/signin" tabIndex={-1}>
+              <button className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md">
                 Sign in
               </button>
             </Link>
-            <Link href="/signup">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            <Link href="/signup" tabIndex={-1}>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               Sign up
             </button>
             </Link>
@@ -39,13 +39,13 @@ export default function Home() {
             Create, collaborate, and share your artwork with the world.
           </p>
           <div className="flex justify-center space-x-4">
-            <Link href="/signup">
-              <button className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
+            <Link href="/signup" tabIndex={-1}>
+              <button className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
             </Link>
-            <button className="px-8 py-3 bg-white text-gray-900 rounded-md hover:bg-gray-50 transition-colors">
+            <button className="px-8 py-3 bg-white text-gray-900 rounded-md hover:bg-gray-50 transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               Learn More
             </button>
           </div>
