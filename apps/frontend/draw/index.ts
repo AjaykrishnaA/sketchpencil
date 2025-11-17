@@ -11,6 +11,9 @@ type Shape  = {
 } | {
     type: "line"
     values: [sx:number, sy:number, ex:number, ey:number]
+} | {
+    type: "pencil"
+    values: [x:number, y:number][]
 }
 
 
@@ -46,6 +49,7 @@ export default async function initDraw(canvas:HTMLCanvasElement, activeToolRef: 
 
     let clicked = false;
     let startX = 0, startY = 0, radius = 0, centerX = 100, centerY = 100;
+    let currentPath: [number, number][] = [];
     
     // Define handlers
     const mouseDownHandler = (e: MouseEvent) => {
@@ -54,9 +58,13 @@ export default async function initDraw(canvas:HTMLCanvasElement, activeToolRef: 
             startX = e.clientX;
             startY = e.clientY;
         console.log(startX, startY)
+        if (activeToolRef.current === "pencil") {
+            currentPath = [[e.clientX, e.clientY]];
+        }
     };
     const mouseMoveHandler = (e: MouseEvent) => {
         if (!clicked) return;
+        
         clearCanvas(existingShapes, canvas, ctx);
     
         if (activeToolRef.current === "rect") {
@@ -77,6 +85,9 @@ export default async function initDraw(canvas:HTMLCanvasElement, activeToolRef: 
             ctx.moveTo(startX, startY);
             ctx.lineTo(e.clientX, e.clientY);
             ctx.stroke();
+        } else if (activeToolRef.current === "pencil") {
+            currentPath.push([e.clientX, e.clientY]);
+            drawPencilPath(ctx, currentPath);
         }
     };
     const mouseUpHandler = (e: MouseEvent) => {
@@ -98,6 +109,15 @@ export default async function initDraw(canvas:HTMLCanvasElement, activeToolRef: 
                 type: "line",
                 values: [startX, startY, e.clientX, e.clientY]
             };
+        } else if (activeToolRef.current === "pencil") {
+            if (currentPath.length < 2) {
+                currentPath.push([e.clientX, e.clientY]);
+            }
+            newShape = {
+                type: "pencil",
+                values: currentPath
+            };
+            currentPath = [];
         }
         console.log("newShape created is : ", newShape?.type)
         
@@ -144,8 +164,22 @@ function clearCanvas(existingShapes:Shape[], canvas:HTMLCanvasElement, ctx:Canva
         ctx.moveTo(startX, startY);
         ctx.lineTo(endX, endY);
         ctx.stroke();
+    } else if (shape.type=='pencil') {
+        drawPencilPath(ctx, shape.values);
     }
     });
+}
+
+function drawPencilPath(ctx: CanvasRenderingContext2D, path: [number, number][]) {
+    if (path.length === 0) return;
+    ctx.beginPath();
+    const [startX, startY] = path[0];
+    ctx.moveTo(startX, startY);
+    for (let i = 1; i < path.length; i++) {
+        const [x, y] = path[i];
+        ctx.lineTo(x, y);
+    }
+    ctx.stroke();
 }
 
 async function getExistingShapes(roomId:string) {

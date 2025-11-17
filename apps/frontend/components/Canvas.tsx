@@ -1,7 +1,7 @@
 "use client"
 import initDraw from "@/draw";
 import { useState, useEffect, useRef } from "react";
-import { Square, Circle, Slash, MousePointer } from 'lucide-react';
+import { Square, Circle, Slash, MousePointer, Pencil } from 'lucide-react';
 
 interface ToolbarProps {
     activeTool: string;
@@ -13,7 +13,7 @@ interface ToolbarProps {
     }>;
 }
 
-export type Tool = "rect" | "circ" | "line" | "select"
+export type Tool = "rect" | "circ" | "line" | "select" | "pencil"
 
 interface toolItem {
     id: Tool
@@ -24,6 +24,7 @@ const tools: toolItem[] = [
     { id: 'rect', icon: Square, label: 'Rectangle' },
     { id: 'circ', icon: Circle, label: 'Circle' },
     { id: 'line', icon: Slash, label: 'Line' },
+    { id: 'pencil', icon: Pencil, label: 'Pencil' },
     { id: 'select', icon: MousePointer, label: 'Select' }
 ];
 
@@ -32,7 +33,7 @@ export default function Canvas({roomId, socket}: {
     socket: WebSocket
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [activeTool, setActiveTool] = useState<Tool>('circ');
+    const [activeTool, setActiveTool] = useState<Tool>('pencil');
     const activeToolRef = useRef(activeTool);
     useEffect(() => {
         activeToolRef.current = activeTool;
